@@ -1,0 +1,67 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połącz z ProfitEMS",
+        "data": { "api_key": "Klucz dostępu" },
+        "data_description": { "api_key": "Klucz utworzysz w aplikacji ProfitEMS: Konto, Moja instalacja, Dostęp dla Home Assistant." }
+      },
+      "reauth_confirm": {
+        "title": "Podaj nowy klucz dostępu",
+        "data": { "api_key": "Klucz dostępu" },
+        "data_description": { "api_key": "Klucz utworzysz w aplikacji ProfitEMS: Konto, Moja instalacja, Dostęp dla Home Assistant." }
+      }
+    },
+    "error": {
+      "invalid_auth": "Klucz dostępu jest nieprawidłowy albo wyłączony.",
+      "rate_limited": "Zbyt wiele prób. Spróbuj ponownie za kilka minut.",
+      "cannot_connect": "Nie udało się połączyć z ProfitEMS."
+    },
+    "abort": {
+      "already_configured": "Ta instalacja jest już skonfigurowana.",
+      "unique_id_mismatch": "Ten klucz należy do innej instalacji.",
+      "reauth_successful": "Klucz dostępu został zaktualizowany."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pv_power": { "name": "Produkcja z paneli" },
+      "home_power": { "name": "Zużycie domu" },
+      "grid_power": { "name": "Moc sieci" },
+      "battery_power": { "name": "Moc magazynu" },
+      "pv_surplus": { "name": "Nadwyżka z paneli" },
+      "mode": {
+        "name": "Tryb pracy",
+        "state": {
+          "samokonsumpcja": "Samokonsumpcja",
+          "ladowanie_ograniczone": "Ładowanie ograniczone",
+          "ladowanie_z_sieci": "Ładowanie z sieci",
+          "sprzedaz": "Sprzedaż do sieci",
+          "rezerwa": "Rezerwa",
+          "zasilanie_domu": "Zasilanie domu",
+          "blokada_oddawania": "Blokada oddawania do sieci",
+          "wstrzymany": "Wstrzymany",
+          "obserwacja": "Obserwacja"
+        }
+      },
+      "rce_price": { "name": "Cena RCE" },
+      "cheapest_hour": { "name": "Najtańsza godzina dziś" },
+      "connection": {
+        "name": "Połączenie",
+        "state": {
+          "online": "Połączono",
+          "opozniona": "Opóźnione",
+          "offline": "Brak połączenia"
+        }
+      },
+      "last_reading": { "name": "Ostatni odczyt" }
+    },
+    "binary_sensor": {
+      "pv_surplus_active": { "name": "Dostępna nadwyżka z paneli" },
+      "battery_full": { "name": "Magazyn pełny" },
+      "cheapest_hour_now": { "name": "Trwa najtańsza godzina" },
+      "control_active": { "name": "Sterowanie aktywne" },
+      "island_mode": { "name": "Praca wyspowa" }
+    }
+  }
+}

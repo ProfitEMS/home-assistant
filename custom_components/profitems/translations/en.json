@@ -1,0 +1,67 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect ProfitEMS",
+        "data": { "api_key": "Access key" },
+        "data_description": { "api_key": "Create the key in the ProfitEMS app: Account, My installation, Home Assistant access." }
+      },
+      "reauth_confirm": {
+        "title": "Enter a new access key",
+        "data": { "api_key": "Access key" },
+        "data_description": { "api_key": "Create the key in the ProfitEMS app: Account, My installation, Home Assistant access." }
+      }
+    },
+    "error": {
+      "invalid_auth": "The access key is invalid or disabled.",
+      "rate_limited": "Too many attempts. Try again in a few minutes.",
+      "cannot_connect": "Could not connect to ProfitEMS."
+    },
+    "abort": {
+      "already_configured": "This installation is already configured.",
+      "unique_id_mismatch": "This key belongs to a different installation.",
+      "reauth_successful": "The access key has been updated."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pv_power": { "name": "PV production" },
+      "home_power": { "name": "Home consumption" },
+      "grid_power": { "name": "Grid power" },
+      "battery_power": { "name": "Battery power" },
+      "pv_surplus": { "name": "PV surplus" },
+      "mode": {
+        "name": "Operating mode",
+        "state": {
+          "samokonsumpcja": "Self-consumption",
+          "ladowanie_ograniczone": "Limited charging",
+          "ladowanie_z_sieci": "Charging from the grid",
+          "sprzedaz": "Selling to the grid",
+          "rezerwa": "Reserve",
+          "zasilanie_domu": "Supplying the home",
+          "blokada_oddawania": "Grid export blocked",
+          "wstrzymany": "Paused",
+          "obserwacja": "Observation"
+        }
+      },
+      "rce_price": { "name": "RCE price" },
+      "cheapest_hour": { "name": "Cheapest hour today" },
+      "connection": {
+        "name": "Connection",
+        "state": {
+          "online": "Online",
+          "opozniona": "Delayed",
+          "offline": "Offline"
+        }
+      },
+      "last_reading": { "name": "Last reading" }
+    },
+    "binary_sensor": {
+      "pv_surplus_active": { "name": "PV surplus available" },
+      "battery_full": { "name": "Battery full" },
+      "cheapest_hour_now": { "name": "Cheapest hour now" },
+      "control_active": { "name": "Control active" },
+      "island_mode": { "name": "Island mode" }
+    }
+  }
+}
