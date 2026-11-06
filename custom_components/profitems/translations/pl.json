@@ -54,7 +54,14 @@
           "offline": "Brak połączenia"
         }
       },
-      "last_reading": { "name": "Ostatni odczyt" }
+      "last_reading": { "name": "Ostatni odczyt" },
+      "pv_energy_today": { "name": "Produkcja z paneli dziś" },
+      "home_energy_today": { "name": "Zużycie domu dziś" },
+      "grid_import_today": { "name": "Pobór z sieci dziś" },
+      "grid_export_today": { "name": "Oddawanie do sieci dziś" },
+      "battery_charge_today": { "name": "Ładowanie magazynu dziś" },
+      "battery_discharge_today": { "name": "Rozładowanie magazynu dziś" },
+      "value_today": { "name": "Wartość energii dziś" }
     },
     "binary_sensor": {
       "pv_surplus_active": { "name": "Dostępna nadwyżka z paneli" },

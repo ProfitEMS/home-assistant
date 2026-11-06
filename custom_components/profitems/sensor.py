@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfPower
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfEnergy, UnitOfPower
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import dt as dt_util
@@ -45,6 +45,31 @@ def _power(key: str, field: str, section: str = "teraz") -> ProfitEmsSensorDescr
     )
 
 
+def _energy(key: str, field: str) -> ProfitEmsSensorDescription:
+    # Inverter counters reset at the inverter's midnight; TOTAL_INCREASING handles the reset in the Energy panel.
+    # Older API responses have no "energiaDzis", so the sensor stays unknown instead of failing.
+    return ProfitEmsSensorDescription(
+        key=key,
+        translation_key=key,
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL_INCREASING,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        suggested_display_precision=1,
+        value_fn=lambda data: (data.get("energiaDzis") or {}).get(field),
+    )
+
+
+def _value_attributes(data: Data) -> dict[str, Any]:
+    value = data.get("wartoscDzis") or {}
+    return {
+        "from_panels": value.get("zPaneliZl"),
+        "from_system": value.get("zSystemuZl"),
+        "export_revenue": value.get("sprzedazZl"),
+        "data_coverage": value.get("pokrycieDanychPct"),
+        "calculated_at": value.get("przeliczono"),
+    }
+
+
 SENSORS = (
     ProfitEmsSensorDescription(
         key="battery_level",
@@ -66,6 +91,8 @@ SENSORS = (
         attributes_fn=lambda data: {
             "since": data["system"].get("trybOd"),
             "plan": data.get("plan", []),
+            "plan_today": data.get("planDoby", []),
+            "plan_tomorrow": data.get("planJutro"),
         },
     ),
     ProfitEmsSensorDescription(
@@ -78,7 +105,24 @@ SENSORS = (
         attributes_fn=lambda data: {
             "today": data["ceny"].get("dzis"),
             "tomorrow": data["ceny"].get("jutro"),
+            "prices_today": data["ceny"].get("godzinyDzis"),
+            "prices_tomorrow": data["ceny"].get("godzinyJutro"),
         },
+    ),
+    _energy("pv_energy_today", "pvKwh"),
+    _energy("home_energy_today", "domKwh"),
+    _energy("grid_import_today", "poborKwh"),
+    _energy("grid_export_today", "oddawanieKwh"),
+    _energy("battery_charge_today", "ladowanieKwh"),
+    _energy("battery_discharge_today", "rozladowanieKwh"),
+    ProfitEmsSensorDescription(
+        key="value_today",
+        translation_key="value_today",
+        device_class=SensorDeviceClass.MONETARY,
+        native_unit_of_measurement="PLN",
+        suggested_display_precision=2,
+        value_fn=lambda data: (data.get("wartoscDzis") or {}).get("razemZl"),
+        attributes_fn=_value_attributes,
     ),
     ProfitEmsSensorDescription(
         key="cheapest_hour",

@@ -54,7 +54,14 @@
           "offline": "Offline"
         }
       },
-      "last_reading": { "name": "Last reading" }
+      "last_reading": { "name": "Last reading" },
+      "pv_energy_today": { "name": "Solar production today" },
+      "home_energy_today": { "name": "Home consumption today" },
+      "grid_import_today": { "name": "Grid import today" },
+      "grid_export_today": { "name": "Grid export today" },
+      "battery_charge_today": { "name": "Battery charge today" },
+      "battery_discharge_today": { "name": "Battery discharge today" },
+      "value_today": { "name": "Energy value today" }
     },
     "binary_sensor": {
       "pv_surplus_active": { "name": "PV surplus available" },

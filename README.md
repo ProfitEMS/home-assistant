@@ -28,14 +28,18 @@ Klucz przestaje działać po wyłączeniu w aplikacji, po zmianie lub resecie ha
 | Moc sieci | Wartość dodatnia oznacza pobór z sieci, ujemna oddawanie do sieci, W |
 | Moc magazynu | Wartość ujemna oznacza ładowanie, dodatnia rozładowanie, W |
 | Nadwyżka z paneli | O ile produkcja przewyższa zużycie domu, W |
-| Tryb pracy | Bieżący tryb systemu; plan na resztę doby w atrybucie `plan` |
-| Cena RCE | Cena bieżącej godziny, zł/kWh netto; ceny godzinowe w atrybutach `today` i `tomorrow` |
+| Tryb pracy | Bieżący tryb systemu; plan na resztę doby w atrybucie `plan`, na całą dobę w `plan_today`, na jutro w `plan_tomorrow` |
+| Cena RCE | Cena bieżącej godziny, zł/kWh netto; ceny godzinowe w atrybutach `today` i `tomorrow`, z początkiem i końcem każdej godziny w `prices_today` i `prices_tomorrow` |
+| Produkcja z paneli dziś, Zużycie domu dziś, Pobór z sieci dziś, Oddawanie do sieci dziś, Ładowanie magazynu dziś, Rozładowanie magazynu dziś | Liczniki energii z falownika od jego północy, kWh; do panelu Energia |
+| Wartość energii dziś | Wartość energii od północy, liczona tak samo jak „Zysk dzisiaj” w aplikacji, zł; podział w atrybutach |
 | Najtańsza godzina dziś | Godzina od 0 do 23 |
 | Dostępna nadwyżka z paneli | Tak lub nie |
 | Magazyn pełny | Tak lub nie |
 | Trwa najtańsza godzina | Tak lub nie |
 | Praca wyspowa | Tak, gdy instalacja pracuje bez zasilania z sieci |
 | Połączenie, Ostatni odczyt, Sterowanie aktywne | Dane diagnostyczne |
+
+Liczniki energii podają falowniki Deye, FoxESS, MUST, Sofar i SolaX. Przy innych markach te czujniki pokazują „nieznane”. Aby dodać je do panelu Energia, wybierz **Ustawienia → Pulpity → Energia** i wskaż odpowiednie czujniki.
 
 Dane o pracy instalacji są aktualizowane co 5 minut. Podczas okresu nauki system tylko obserwuje instalację: tryb to „Obserwacja”, a plan jest pusty.
 
