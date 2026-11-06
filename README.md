@@ -39,7 +39,15 @@ Klucz przestaje działać po wyłączeniu w aplikacji, po zmianie lub resecie ha
 | Praca wyspowa | Tak, gdy instalacja pracuje bez zasilania z sieci |
 | Połączenie, Ostatni odczyt, Sterowanie aktywne | Dane diagnostyczne |
 
-Liczniki energii podają falowniki Deye, FoxESS, MUST, Sofar i SolaX. Przy innych markach te czujniki pokazują „nieznane”. Aby dodać je do panelu Energia, wybierz **Ustawienia → Pulpity → Energia** i wskaż odpowiednie czujniki.
+Które liczniki energii podaje falownik:
+
+| Marka | Liczniki |
+|---|---|
+| Deye, Sofar, MUST | wszystkie sześć |
+| FoxESS | produkcja, zużycie domu, pobór i oddawanie; bez ładowania i rozładowania magazynu |
+| SolaX | tylko produkcja |
+
+Liczniki, których falownik nie podaje, są dodawane jako wyłączone; można je włączyć w ustawieniach urządzenia. Falownik zeruje liczniki według własnego zegara, więc moment zerowania może różnić się od północy. „Wartość energii dziś” system przelicza co godzinę. Aby dodać je do panelu Energia, wybierz **Ustawienia → Pulpity → Energia** i wskaż odpowiednie czujniki.
 
 Dane o pracy instalacji są aktualizowane co 5 minut. Podczas okresu nauki system tylko obserwuje instalację: tryb to „Obserwacja”, a plan jest pusty.
 

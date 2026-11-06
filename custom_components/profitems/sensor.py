@@ -1,7 +1,7 @@
 """Sensors of the ProfitEMS integration."""
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Any
 
@@ -32,6 +32,8 @@ class ProfitEmsSensorDescription(SensorEntityDescription):
 
     value_fn: Callable[[Data], Any]
     attributes_fn: Callable[[Data], dict[str, Any]] | None = None
+    # The value starts again from zero at local midnight (state_class TOTAL needs last_reset).
+    resets_daily: bool = False
 
 
 def _power(key: str, field: str, section: str = "teraz") -> ProfitEmsSensorDescription:
@@ -57,6 +59,16 @@ def _energy(key: str, field: str) -> ProfitEmsSensorDescription:
         suggested_display_precision=1,
         value_fn=lambda data: (data.get("energiaDzis") or {}).get(field),
     )
+
+
+ENERGY_FIELDS = {
+    "pv_energy_today": "pvKwh",
+    "home_energy_today": "domKwh",
+    "grid_import_today": "poborKwh",
+    "grid_export_today": "oddawanieKwh",
+    "battery_charge_today": "ladowanieKwh",
+    "battery_discharge_today": "rozladowanieKwh",
+}
 
 
 def _value_attributes(data: Data) -> dict[str, Any]:
@@ -109,16 +121,13 @@ SENSORS = (
             "prices_tomorrow": data["ceny"].get("godzinyJutro"),
         },
     ),
-    _energy("pv_energy_today", "pvKwh"),
-    _energy("home_energy_today", "domKwh"),
-    _energy("grid_import_today", "poborKwh"),
-    _energy("grid_export_today", "oddawanieKwh"),
-    _energy("battery_charge_today", "ladowanieKwh"),
-    _energy("battery_discharge_today", "rozladowanieKwh"),
+    *(_energy(key, field) for key, field in ENERGY_FIELDS.items()),
     ProfitEmsSensorDescription(
         key="value_today",
         translation_key="value_today",
         device_class=SensorDeviceClass.MONETARY,
+        state_class=SensorStateClass.TOTAL,
+        resets_daily=True,
         native_unit_of_measurement="PLN",
         suggested_display_precision=2,
         value_fn=lambda data: (data.get("wartoscDzis") or {}).get("razemZl"),
@@ -151,20 +160,37 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up sensors."""
-    async_add_entities(
-        ProfitEmsSensor(entry.runtime_data, description) for description in SENSORS
-    )
+    # Many inverter brands do not report some daily counters. Such energy sensors are created disabled,
+    # so they do not clutter the device; the user can still enable them.
+    energy = (entry.runtime_data.data or {}).get("energiaDzis") or {}
+    descriptions = [
+        replace(description, entity_registry_enabled_default=False)
+        if description.key in ENERGY_FIELDS and energy.get(ENERGY_FIELDS[description.key]) is None
+        else description
+        for description in SENSORS
+    ]
+    async_add_entities(ProfitEmsSensor(entry.runtime_data, description) for description in descriptions)
 
 
 class ProfitEmsSensor(ProfitEmsEntity, SensorEntity):
     """A value read from the installation data."""
 
     entity_description: ProfitEmsSensorDescription
+    # The plan starts at the current minute and the hourly prices are long lists: recording them would add
+    # a new attributes row every minute. They stay available to automations, only the database skips them.
+    _unrecorded_attributes = frozenset(
+        {"plan", "plan_today", "plan_tomorrow", "today", "tomorrow", "prices_today", "prices_tomorrow"}
+    )
 
     @property
     def native_value(self) -> Any:
         """Return the sensor value."""
         return self.entity_description.value_fn(self.coordinator.data)
+
+    @property
+    def last_reset(self) -> datetime | None:
+        """Return local midnight for values that start again every day."""
+        return dt_util.start_of_local_day() if self.entity_description.resets_daily else None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:

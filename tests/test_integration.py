@@ -114,6 +114,8 @@ async def test_entities_show_api_values(hass, aioclient_mock):
     assert float(_state(hass, "battery_discharge_today").state) == 2.4
     assert _state(hass, "pv_energy_today").attributes["state_class"] == "total_increasing"
     assert float(_state(hass, "value_today").state) == 6.42
+    assert _state(hass, "value_today").attributes["state_class"] == "total"
+    assert _state(hass, "value_today").attributes["last_reset"]
     assert _state(hass, "value_today").attributes["from_system"] == 2.32
     assert _state(hass, "mode").attributes["plan_today"] == INSTALLATION["planDoby"]
     assert _state(hass, "mode").attributes["plan_tomorrow"] is None
@@ -131,6 +133,17 @@ async def test_offline_installation_has_unknown_values(hass, aioclient_mock):
     assert _state(hass, "island_mode", "binary_sensor").state == "unknown"
 
 
+async def test_counters_the_brand_does_not_report_are_disabled(hass, aioclient_mock):
+    body = copy.deepcopy(INSTALLATION)
+    body["energiaDzis"] = {**dict.fromkeys(body["energiaDzis"]), "pvKwh": 18.4}
+    await _setup(hass, aioclient_mock, body)
+    registry = er.async_get(hass)
+    pv = registry.async_get_entity_id("sensor", DOMAIN, f"{INSTALLATION['numerBramki']}_pv_energy_today")
+    charge = registry.async_get_entity_id("sensor", DOMAIN, f"{INSTALLATION['numerBramki']}_battery_charge_today")
+    assert registry.async_get(pv).disabled_by is None
+    assert registry.async_get(charge).disabled_by is er.RegistryEntryDisabler.INTEGRATION
+
+
 async def test_older_api_without_new_fields_keeps_working(hass, aioclient_mock):
     body = copy.deepcopy(INSTALLATION)
     for key in ("energiaDzis", "wartoscDzis", "planDoby", "planJutro"):
@@ -139,7 +152,9 @@ async def test_older_api_without_new_fields_keeps_working(hass, aioclient_mock):
         del body["ceny"][key]
     await _setup(hass, aioclient_mock, body)
     assert float(_state(hass, "battery_level").state) == 74
-    assert _state(hass, "pv_energy_today").state == "unknown"
+    assert er.async_get(hass).async_get(
+        er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{INSTALLATION['numerBramki']}_pv_energy_today")
+    ).disabled_by is er.RegistryEntryDisabler.INTEGRATION
     assert _state(hass, "value_today").state == "unknown"
     assert _state(hass, "mode").attributes["plan_today"] == []
     assert _state(hass, "rce_price").attributes["prices_today"] is None
